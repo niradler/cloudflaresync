@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/cloudflare/cloudflare-go"
@@ -104,10 +105,22 @@ func updateRecords() {
 
 		if len(records) == 0 {
 			fmt.Println("Record not found, creating...")
+			var proxied bool
+			proxiedEnvVar, exist := os.LookupEnv("PROXIED")
+			if !exist {
+				proxied = true
+			} else {
+				boolValue, err := strconv.ParseBool(proxiedEnvVar)
+				if err != nil {
+					log.Fatal(err)
+				}
+				proxied = boolValue
+			}
 			newRecord := cloudflare.DNSRecord{
 				Type:    "A",
 				Name:    host,
 				Content: ip,
+				Proxied: &proxied,
 			}
 			_, err := api.CreateDNSRecord(ctx, id, newRecord)
 			if err != nil {
@@ -150,9 +163,17 @@ func main() {
 	}
 	updateRecords()
 	log.Println("Start cron")
+	cronExpression, exist := os.LookupEnv("CRON")
+	if !exist {
+		cronExpression = "0 * * * *"
+	}
+	log.Println("cron:", cronExpression)
 	c := cron.New()
-	c.AddFunc("0 30 * * * *", updateRecords)
-
+	id, err := c.AddFunc(cronExpression, updateRecords)
+	if err != nil {
+		log.Fatal("cron AddFunc error:", err)
+	}
+	log.Println("cron id:", id)
 	c.Start()
 	log.Println("Cron Info: ", c.Entries())
 	fmt.Scanln()
