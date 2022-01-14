@@ -164,8 +164,8 @@ func main() {
 	if err != nil {
 		log.Println("Error loading .env file")
 	}
-	// updateRecords()
-	log.Println("Start cron")
+	updateRecords()
+	log.Println("Start cron", time.Now())
 	cronExpression, exist := os.LookupEnv("CRON")
 	if !exist {
 		cronExpression = "0 * * * *"
