@@ -1,0 +1,10 @@
+version: '3.4'
+
+services:
+  cloudflaresync:
+    image: cloudflaresync
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    env_file:
+      - .env  
