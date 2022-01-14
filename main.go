@@ -12,6 +12,7 @@ import (
 
 	"github.com/cloudflare/cloudflare-go"
 	"github.com/joho/godotenv"
+	"github.com/robfig/cron/v3"
 )
 
 type ipRes struct {
@@ -43,12 +44,7 @@ func GetIp() (string, error) {
 	return jsonResponse.Ip, nil
 }
 
-func main() {
-
-	err := godotenv.Load()
-	if err != nil {
-		log.Println("Error loading .env file")
-	}
+func updateRecords() {
 
 	domain := os.Getenv("CLOUDFLARE_DOMAIN")
 
@@ -145,4 +141,20 @@ func main() {
 			}
 		}
 	}
+}
+
+func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("Error loading .env file")
+	}
+	updateRecords()
+	log.Println("Start cron")
+	c := cron.New()
+	c.AddFunc("0 30 * * * *", updateRecords)
+
+	c.Start()
+	log.Println("Cron Info: ", c.Entries())
+	fmt.Scanln()
+	fmt.Println("done")
 }
