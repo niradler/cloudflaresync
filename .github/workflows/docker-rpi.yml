@@ -25,4 +25,4 @@ jobs:
       - name: Run Buildx (push image)
         if: success()
         run: |
-          docker buildx build --platform linux/arm/v7 -t niradler/cloudflaresync:armv7
+          docker buildx build --platform linux/arm/v7 -t niradler/cloudflaresync:armv7 .
