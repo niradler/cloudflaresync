@@ -1,10 +1,10 @@
 # Cloudflare Sync
 
-created to keep my raspberry pi sub domains updated.
+Created to keep my raspberry pi sub domains updated with my home ip address.
 
 ## Introduction
 
-golang application to update dns records on cloudflare, you can customize the frequency of updates (default for every hour) and if the dns record will be proxied (just for new records).
+Golang application to create new/update dns records on cloudflare, you can customize the frequency of updates (default for every hour) and if the dns record will be proxied (just for new records).
 
 ### Usage
 
