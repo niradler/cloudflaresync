@@ -8,8 +8,11 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"strconv"
 	"strings"
+	"syscall"
+	"time"
 
 	"github.com/cloudflare/cloudflare-go"
 	"github.com/joho/godotenv"
@@ -161,7 +164,7 @@ func main() {
 	if err != nil {
 		log.Println("Error loading .env file")
 	}
-	updateRecords()
+	// updateRecords()
 	log.Println("Start cron")
 	cronExpression, exist := os.LookupEnv("CRON")
 	if !exist {
@@ -176,6 +179,18 @@ func main() {
 	log.Println("cron id:", id)
 	c.Start()
 	log.Println("Cron Info: ", c.Entries())
-	fmt.Scanln()
+
+	go forever()
+
+	quitChannel := make(chan os.Signal, 1)
+	signal.Notify(quitChannel, syscall.SIGINT, syscall.SIGTERM)
+	<-quitChannel
+
 	fmt.Println("done")
+}
+
+func forever() {
+	for {
+		time.Sleep(time.Second)
+	}
 }
