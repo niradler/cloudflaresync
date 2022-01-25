@@ -22,7 +22,11 @@ jobs:
         uses: crazy-max/ghaction-docker-buildx@v1
         with:
           version: latest
-      - name: Run Buildx (push image)
+      - name: Run Buildx (armv7)
         if: success()
         run: |
           docker buildx build --platform linux/arm/v7 -t niradler/cloudflaresync:armv7 --push .
+      - name: Run Buildx (amd64)
+        if: success()
+        run: |
+          docker buildx build --platform=linux/amd64,linux/arm64 -t niradler/cloudflaresync:latest --push .
