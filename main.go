@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -19,12 +18,8 @@ import (
 	"github.com/robfig/cron/v3"
 )
 
-type ipRes struct {
-	Ip string `json:"ip"`
-}
-
 func GetIp() (string, error) {
-	response, err := http.Get("https://api.ipify.org?format=json")
+	response, err := http.Get("https://1.1.1.1/cdn-cgi/trace")
 	if err != nil {
 		log.Fatalln("GetIp", err)
 	}
@@ -36,16 +31,12 @@ func GetIp() (string, error) {
 	}
 
 	fmt.Println(response.Status)
+	resBody := string(responseBody)
+	split := strings.Split(resBody, "\n")[2]
+	ip := strings.Split(split, "=")[1]
+	fmt.Println("external ip", ip)
 
-	jsonResponse := ipRes{}
-	unmarshaLerr := json.Unmarshal(responseBody, &jsonResponse)
-	if unmarshaLerr != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println("external ip", jsonResponse.Ip)
-
-	return jsonResponse.Ip, nil
+	return ip, nil
 }
 
 func updateRecords() {
