@@ -19,6 +19,42 @@ PROXIED=true
 DOCKER_DAEMON=true
 ```
 
+### RaspberryPI
+
 ```sh
 docker run --name cloudflaresync --env CLOUDFLARE_API_TOKEN=<key> --env CLOUDFLARE_SUB_DOMAINS=<app,home> --env CLOUDFLARE_DOMAIN=<example.com> --restart unless-stopped niradler/cloudflaresync:armv7
+```
+
+### Docker labels
+
+Automatically create dns record, set env DOCKER_DAEMON=true, and expose docker socket /var/run/docker.sock:/var/run/docker.sock
+
+```
+version: "3.5"
+
+services:
+  cloudflaresync:
+    image: niradler/cloudflaresync:latest
+    restart: unless-stopped
+    environment:
+      CLOUDFLARE_API_TOKEN: "${CLOUDFLARE_API_TOKEN}"
+      CLOUDFLARE_DOMAIN: "${DOMAIN}"
+      CLOUDFLARE_SUB_DOMAINS: "${SUB_DOMAINS}"
+      DOCKER_DAEMON: 'true'
+    labels:
+      - homepage.show=true
+      - homepage.description=cloudflaresync
+      - homepage.title=cloudflaresync
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+```
+
+```
+version: "3.5"
+
+services:
+  adminer:
+    image: adminer:latest
+    labels:
+      - cloudflaresync.name=adminer
 ```
