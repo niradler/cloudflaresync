@@ -176,19 +176,19 @@ func updateRecords() {
 
 		fmt.Println("Got host record with ID", record.ID, "for host", record.Name, ", current value", record.Content)
 
-		// if record.Content != ip {
-		// 	newRecord := cloudflare.DNSRecord{
-		// 		Content: ip,
-		// 	}
+		if record.Content != ip {
+			newRecord := cloudflare.DNSRecord{
+				Content: ip,
+			}
 
-		// 	err = api.UpdateDNSRecord(ctx, id, record.ID, newRecord)
-		// 	if err != nil {
-		// 		fmt.Println("Error updating IP for host\nError:", err)
-		// 		continue
-		// 	} else {
-		// 		fmt.Println("Succsfully updated record for host", host, "with ip", ip)
-		// 	}
-		// }
+			err = api.UpdateDNSRecord(ctx, id, record.ID, newRecord)
+			if err != nil {
+				fmt.Println("Error updating IP for host\nError:", err)
+				continue
+			} else {
+				fmt.Println("Succsfully updated record for host", host, "with ip", ip)
+			}
+		}
 	}
 }
 
