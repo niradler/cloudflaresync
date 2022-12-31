@@ -7,6 +7,7 @@ require (
 	github.com/docker/docker v20.10.22+incompatible
 	github.com/joho/godotenv v1.4.0
 	github.com/robfig/cron/v3 v3.0.1
+	github.com/thoas/go-funk v0.9.3
 )
 
 require (

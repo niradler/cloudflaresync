@@ -18,6 +18,7 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/joho/godotenv"
 	"github.com/robfig/cron/v3"
+	"github.com/thoas/go-funk"
 )
 
 func GetIp() (string, error) {
@@ -110,6 +111,7 @@ func updateRecords() {
 	names := getContainersName()
 	if names != nil {
 		subDomains = append(subDomains, names...)
+		subDomains = funk.UniqString(subDomains)
 	}
 
 	fmt.Println("subDomains: ", subDomains)
