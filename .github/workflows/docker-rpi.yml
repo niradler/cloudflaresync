@@ -8,7 +8,7 @@ on:
 jobs:
   armv7_job:
     runs-on: ubuntu-18.04
-    name: Build on ARMv7 (Rpi)
+    name: Build
     steps:
       - uses: actions/checkout@v1
       - name: Get the version

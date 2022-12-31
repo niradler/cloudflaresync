@@ -16,6 +16,7 @@ CLOUDFLARE_DOMAIN=example.com
 CLOUDFLARE_SUB_DOMAINS=test,home
 CRON=*/2 * * * *
 PROXIED=true
+DOCKER_DAEMON=true
 ```
 
 ```sh

@@ -14,6 +14,8 @@ import (
 	"time"
 
 	"github.com/cloudflare/cloudflare-go"
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/client"
 	"github.com/joho/godotenv"
 	"github.com/robfig/cron/v3"
 )
@@ -37,6 +39,42 @@ func GetIp() (string, error) {
 	fmt.Println("external ip", ip)
 
 	return ip, nil
+}
+
+func getContainersName() []string {
+	var subs []string
+	var useDockerDaemon = false
+	useDockerDaemonEnv, exist := os.LookupEnv("DOCKER_DAEMON")
+	if !exist || useDockerDaemonEnv == "false" {
+		useDockerDaemon = false
+	} else {
+		useDockerDaemon = true
+	}
+
+	if useDockerDaemon == false {
+		return nil
+	}
+	ctx := context.Background()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		panic(err)
+	}
+	defer cli.Close()
+
+	containers, err := cli.ContainerList(ctx, types.ContainerListOptions{})
+	if err != nil {
+		panic(err)
+	}
+
+	for _, container := range containers {
+		name, ok := container.Labels["cloudflaresync.name"]
+
+		if ok {
+			subs = append(subs, name)
+		}
+	}
+
+	return subs
 }
 
 func updateRecords() {
@@ -69,6 +107,10 @@ func updateRecords() {
 	}
 
 	subDomains := strings.Split(os.Getenv("CLOUDFLARE_SUB_DOMAINS"), ",")
+	names := getContainersName()
+	if names != nil {
+		subDomains = append(subDomains, names...)
+	}
 
 	fmt.Println("subDomains: ", subDomains)
 	fmt.Println("domain", zone.Name)
@@ -134,19 +176,19 @@ func updateRecords() {
 
 		fmt.Println("Got host record with ID", record.ID, "for host", record.Name, ", current value", record.Content)
 
-		if record.Content != ip {
-			newRecord := cloudflare.DNSRecord{
-				Content: ip,
-			}
+		// if record.Content != ip {
+		// 	newRecord := cloudflare.DNSRecord{
+		// 		Content: ip,
+		// 	}
 
-			err = api.UpdateDNSRecord(ctx, id, record.ID, newRecord)
-			if err != nil {
-				fmt.Println("Error updating IP for host\nError:", err)
-				continue
-			} else {
-				fmt.Println("Succsfully updated record for host", host, "with ip", ip)
-			}
-		}
+		// 	err = api.UpdateDNSRecord(ctx, id, record.ID, newRecord)
+		// 	if err != nil {
+		// 		fmt.Println("Error updating IP for host\nError:", err)
+		// 		continue
+		// 	} else {
+		// 		fmt.Println("Succsfully updated record for host", host, "with ip", ip)
+		// 	}
+		// }
 	}
 }
 
@@ -178,6 +220,7 @@ func main() {
 	<-quitChannel
 
 	fmt.Println("done")
+
 }
 
 func forever() {
