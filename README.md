@@ -58,3 +58,5 @@ services:
     labels:
       - cloudflaresync.name=adminer
 ```
+
+this will automatically create record adminer.domain
